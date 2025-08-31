@@ -1,0 +1,26 @@
+# TTS + STS Voice Conversion System with OpenVoice
+
+# TTS (Text-to-Speech) - Generate voice from text
+pyttsx3>=2.90          # System TTS engine
+edge-tts>=6.1.0        # High-quality neural TTS
+
+# STS (Speech-to-Speech) - Advanced voice cloning with OpenVoice
+torch>=1.13.0          # PyTorch for neural networks
+torchaudio>=0.13.0     # Audio processing with PyTorch
+numpy>=1.21.0          # Numerical computing
+scipy>=1.7.0           # Scientific computing
+librosa>=0.9.0         # Audio analysis
+soundfile>=0.10.0      # Audio file I/O
+requests>=2.25.0       # For downloads and API calls
+
+# OpenVoice dependencies
+transformers>=4.20.0   # Hugging Face transformers
+accelerate>=0.20.0     # Accelerated training
+datasets>=2.0.0        # Dataset handling
+
+# Application support
+PyPDF2>=3.0.0          # PDF text extraction
+
+# Audio processing
+pydub>=0.25.0          # Audio file processing
+pygame>=2.0.0          # Audio playback
