@@ -1,8 +1,3 @@
-"""
-Interactive PDF Text-to-Speech Reader
-Simple GUI for PDF documents only
-"""
-
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading
