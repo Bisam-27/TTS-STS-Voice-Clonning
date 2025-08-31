@@ -2,13 +2,13 @@
   "sample_count": 1,
   "sample_files": [
     {
-      "filename": "72001__corsica-s__electric-masquerade.wav",
-      "path": "C:/Users/imran/Downloads/72001__corsica-s__electric-masquerade.wav",
-      "duration": 128.075625,
-      "size": 11296312
+      "filename": "tmp29q5fzou.wav",
+      "path": "C:\\Users\\imran\\AppData\\Local\\Temp\\tmp29q5fzou.wav",
+      "duration": 27.9926875,
+      "size": 2468994
     }
   ],
-  "estimated_rate": 170,
+  "estimated_rate": 180,
   "estimated_pitch": "medium",
   "voice_style": "natural",
   "conversion_type": "STS"
