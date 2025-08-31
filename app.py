@@ -3,41 +3,30 @@ import PyPDF2
 import tempfile
 import os
 import io
-from pathlib import Path
 import re
-
+import warnings
+from pathlib import Path
 from real_voice_cloning import TTSSTSConverter
 
-# --- Page config ---
+# --- Suppress Torchaudio Warning ---
+warnings.filterwarnings("ignore", message=".*Torchaudio's I/O functions.*")
+
+# --- Page Config ---
 st.set_page_config(page_title="PDF to Speech", page_icon="📘", layout="wide")
 
 # --- Custom Styling ---
 st.markdown("""
-    <style>
-    .main {
-        background: linear-gradient(to right, #f0f4f8, #e8f0fe);
-        padding: 1rem;
-        border-radius: 12px;
-    }
-    .stButton>button {
-        background-color: #4A90E2;
-        color: white;
-        border-radius: 10px;
-        padding: 0.6em 1.2em;
-        border: none;
-        font-weight: bold;
-    }
-    .stButton>button:hover {
-        background-color: #357ABD;
-        color: #ffffff;
-    }
-    </style>
+<style>
+.main { background: linear-gradient(to right, #f0f4f8, #e8f0fe); padding: 1rem; border-radius: 12px; }
+.stButton>button { background-color: #4A90E2; color: white; border-radius: 10px; padding: 0.6em 1.2em; font-weight: bold; }
+.stButton>button:hover { background-color: #357ABD; color: #ffffff; }
+</style>
 """, unsafe_allow_html=True)
 
 # --- Helpers ---
 def clean_pdf_text(text: str) -> str:
-    text = re.sub(r'\s+', ' ', text)  # Replace multiple spaces/newlines with single space
-    text = re.sub(r'\n{2,}', '\n', text)  # Keep single line breaks
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\n{2,}', '\n', text)
     return text.strip()
 
 def save_upload_to_temp(uploaded_file):
@@ -53,8 +42,7 @@ def extract_text_from_pdf(pdf_bytes: bytes):
         reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
         text = ""
         for p in reader.pages:
-            page_text = p.extract_text() or ""
-            text += page_text + "\n"
+            text += (p.extract_text() or "") + "\n"
         return clean_pdf_text(text), len(reader.pages)
     except Exception as e:
         raise RuntimeError(f"Failed to read PDF: {e}")
@@ -68,10 +56,9 @@ def stream_and_download_audio(file_path: str, label="Download WAV"):
     st.audio(audio_bytes, format="audio/wav")
     st.download_button(label, data=audio_bytes, file_name=os.path.basename(file_path), mime="audio/wav")
 
-# --- Session state ---
+# --- Session State ---
 if "tts_converter" not in st.session_state:
     st.session_state.tts_converter = TTSSTSConverter()
-
 if "pdf_text" not in st.session_state:
     st.session_state.pdf_text = ""
 if "voice_samples" not in st.session_state:
@@ -96,16 +83,19 @@ if voice_mode == "TTS + STS (Your voice)":
             st.session_state.voice_samples.append(path)
         st.sidebar.success(f"Added {len(samples)} samples")
     if st.sidebar.button("Prepare Voice Model"):
-        st.sidebar.info("Preparing voice model...")
-        try:
-            st.session_state.tts_converter.prepare_voice_samples()
-            st.session_state.tts_converter.load_model()
-            st.session_state.model_ready = True
-            st.sidebar.success("Voice model ready")
-        except Exception as e:
-            st.sidebar.error(f"Setup failed: {e}")
+        if not st.session_state.voice_samples:
+            st.sidebar.error("Upload at least one sample.")
+        else:
+            try:
+                st.sidebar.info("Preparing voice model...")
+                st.session_state.tts_converter.prepare_voice_samples()
+                st.session_state.tts_converter.load_model()
+                st.session_state.model_ready = True
+                st.sidebar.success("Voice model ready!")
+            except Exception as e:
+                st.sidebar.error(f"Setup failed: {e}")
 
-# --- Main Area ---
+# --- Main ---
 st.title("📘 PDF Text-to-Speech Reader")
 if uploaded_pdf:
     try:
@@ -118,41 +108,48 @@ if uploaded_pdf:
 
 preview_text = st.text_area("Preview & Edit Text", value=st.session_state.pdf_text, height=300)
 
-col1, col2 = st.columns([1,1])
+col1, col2 = st.columns([1, 1])
 with col1:
     if st.button("▶ Generate Speech"):
         if not preview_text.strip():
             st.warning("Enter or upload text first.")
         else:
             st.info("Generating speech...")
-            if voice_mode == "System (pyttsx3)":
-                path = st.session_state.tts_converter._generate_base_audio_pyttsx3(preview_text)
-                if path:
-                    stream_and_download_audio(path)
-            else:
-                if not st.session_state.model_ready:
-                    st.warning("Prepare voice model first.")
-                else:
-                    path = st.session_state.tts_converter.convert_text_to_speech(preview_text)
-                    if isinstance(path, str) and os.path.exists(path):
+            try:
+                if voice_mode == "System (pyttsx3)":
+                    path = st.session_state.tts_converter._generate_base_audio_pyttsx3(preview_text)
+                    if path:
                         stream_and_download_audio(path)
+                else:
+                    if not st.session_state.model_ready:
+                        st.warning("Prepare voice model first.")
                     else:
-                        st.warning("Speech generated but no file available.")
+                        path = st.session_state.tts_converter.convert_text_to_speech(preview_text)
+                        if isinstance(path, str) and os.path.exists(path):
+                            stream_and_download_audio(path)
+                        else:
+                            st.warning("Speech generated but no file available.")
+            except Exception as e:
+                st.error(f"Error: {e}")
 
 with col2:
     if st.button("💾 Save Speech"):
         if not preview_text.strip():
             st.warning("Enter or upload text first.")
         else:
-            path = st.session_state.tts_converter._generate_base_audio_pyttsx3(preview_text) \
-                   if voice_mode == "System (pyttsx3)" else \
-                   st.session_state.tts_converter.convert_text_to_speech(preview_text)
-            if path and os.path.exists(path):
-                with open(path, "rb") as f:
-                    st.download_button("Download", f.read(), file_name="speech.wav", mime="audio/wav")
-            else:
-                st.error("Failed to save audio.")
+            try:
+                path = (
+                    st.session_state.tts_converter._generate_base_audio_pyttsx3(preview_text)
+                    if voice_mode == "System (pyttsx3)"
+                    else st.session_state.tts_converter.convert_text_to_speech(preview_text)
+                )
+                if path and os.path.exists(path):
+                    with open(path, "rb") as f:
+                        st.download_button("Download", f.read(), file_name="speech.wav", mime="audio/wav")
+                else:
+                    st.error("Failed to save audio.")
+            except Exception as e:
+                st.error(f"Save failed: {e}")
 
 st.markdown("---")
-st.caption("Styled PDF to Speech app using Streamlit • Voice cloning optional • Created for your project")
-
+st.caption("Styled PDF to Speech app using Streamlit • Supports basic and cloned voices")
