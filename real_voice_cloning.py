@@ -1,10 +1,3 @@
-"""
-TTS + STS Voice Conversion System with OpenVoice
-1. TTS: Generate voice from text using high-quality neural TTS
-2. STS: Convert generated voice to match user's voice using OpenVoice AI
-3. Real voice cloning using open-source neural networks (no API key needed!)
-"""
-
 import os
 import tempfile
 import tkinter as tk
