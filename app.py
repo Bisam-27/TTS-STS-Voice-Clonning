@@ -51,10 +51,17 @@ def stream_and_download_audio(file_path: str, label="Download WAV"):
     if not file_path or not os.path.exists(file_path):
         st.error("No audio file generated.")
         return
+    # Convert MP3 to WAV if needed
+    if file_path.endswith(".mp3"):
+        import subprocess
+        wav_path = file_path.replace(".mp3", ".wav")
+        subprocess.run(["ffmpeg", "-y", "-i", file_path, wav_path])
+        file_path = wav_path
     with open(file_path, "rb") as f:
         audio_bytes = f.read()
     st.audio(audio_bytes, format="audio/wav")
     st.download_button(label, data=audio_bytes, file_name=os.path.basename(file_path), mime="audio/wav")
+
 
 # --- Session State ---
 if "tts_converter" not in st.session_state:
