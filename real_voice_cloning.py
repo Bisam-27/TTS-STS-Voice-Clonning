@@ -1,7 +1,5 @@
 import os
 import tempfile
-from tkinter import filedialog, messagebox
-from tkinter import ttk
 import threading
 import time
 import random
