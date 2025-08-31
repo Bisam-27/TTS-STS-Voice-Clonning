@@ -1,14 +1,20 @@
 {
-  "sample_count": 1,
+  "sample_count": 2,
   "sample_files": [
     {
-      "filename": "tmp29q5fzou.wav",
-      "path": "C:\\Users\\imran\\AppData\\Local\\Temp\\tmp29q5fzou.wav",
-      "duration": 27.9926875,
-      "size": 2468994
+      "filename": "tmpuqh6af4x.wav",
+      "path": "C:\\Users\\imran\\AppData\\Local\\Temp\\tmpuqh6af4x.wav",
+      "duration": 141.035125,
+      "size": 12439340
+    },
+    {
+      "filename": "tmp2rf0zavp.wav",
+      "path": "C:\\Users\\imran\\AppData\\Local\\Temp\\tmp2rf0zavp.wav",
+      "duration": 141.035125,
+      "size": 12439340
     }
   ],
-  "estimated_rate": 180,
+  "estimated_rate": 160,
   "estimated_pitch": "medium",
   "voice_style": "natural",
   "conversion_type": "STS"
