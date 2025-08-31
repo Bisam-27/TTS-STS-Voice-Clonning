@@ -7,6 +7,9 @@ TTS + STS Voice Conversion System with OpenVoice
 
 import os
 import tempfile
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from tkinter import ttk
 import threading
 import time
 import random
@@ -428,7 +431,6 @@ class TTSSTSConverter:
             return converted_audio
 
         except Exception as e:
-            print("Full traceback:", traceback.format_exc()) 
             raise RuntimeError(f"Failed TTS + STS conversion: {e}")
 
     def _tts_with_edge(self, text, progress_callback):
