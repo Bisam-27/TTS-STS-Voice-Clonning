@@ -428,6 +428,7 @@ class TTSSTSConverter:
             return converted_audio
 
         except Exception as e:
+            print("Full traceback:", traceback.format_exc()) 
             raise RuntimeError(f"Failed TTS + STS conversion: {e}")
 
     def _tts_with_edge(self, text, progress_callback):
